@@ -1,0 +1,127 @@
+ @charset "utf-8";
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+ }
+
+ li {
+     list-style: none;
+ }
+
+ body {
+     font-family: "微软雅黑", Helvetica, sans-serif;
+     margin: 0 auto;
+     width: 100%;
+     font-size: 14px;
+ }
+
+ html,
+ body {
+     padding-right: 0 !important;
+     height: 100%;
+     overflow: auto!important;
+ }
+
+ a {
+     text-decoration: none;
+ }
+
+ h1,
+ h2,
+ h3,
+ h4,
+ h5,
+ h6 {
+     font-weight: normal;
+     margin: 0;
+ }
+
+ input,
+ textarea,
+ select,
+ button,
+ option {
+     font-family: "微软雅黑", Helvetica, sans-serif;
+ }
+
+ img {
+     border: none;
+ }
+
+ .el-select .el-input {
+     width: 130px;
+ }
+
+ .input-with-select .el-input-group__prepend {
+     background-color: #fff;
+ }
+
+ .search-warp {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     padding: 0 600px;
+ }
+
+ .table {
+     margin-top: 20px;
+     padding: 0 200px;
+ }
+
+ .pagination {
+     text-align: center;
+     margin-top: 20px;
+ }
+
+ .el-table th,
+ .el-table td {
+     text-align: center;
+     padding: 8px;
+ }
+
+ .el-table .cell,
+ .el-table th div,
+ .el-table--border td:first-child .cell,
+ .el-table--border th:first-child .cell {
+     padding-left: 0;
+ }
+ .el-input-group {
+    margin-top: 10px;
+}
+.el-select {
+    display: none;
+}
+
+ @media screen and (max-width:966px) {
+     #app {
+         padding: .8rem!important;
+     }
+     .el-input-group {
+         width: 100%;
+     }
+     .search-warp {
+         padding: 0px 0px!important;
+     }
+     .table {
+         padding: 0px 0px!important;
+     }
+ }
+
+ @media screen and (max-width:1440px) {
+     .search-warp {
+         padding: 0 300px;
+     }
+     .table {
+         padding: 0 100px;
+     }
+ }
+
+ @media screen and (min-width: 1600px) and (max-width: 1680px) {
+     .search-warp {
+         padding: 0 450px;
+     }
+     .table {
+         padding: 0 150px;
+     }
+ }

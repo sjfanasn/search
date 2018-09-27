@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale = 1.0,minimum-scale = 1.0,user-scalable=no,minimal-ui">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="style.css">
+    <title>search</title>
+</head>
+
+<body>
+    <div id="warp">
+        <div class="search-warp">
+            <img src="logo.png" alt="logo">
+            <el-input placeholder="请输入内容" v-model="requestData.keyword" @keyup.enter.native="search" class="input-with-select">
+                <el-button slot="append" icon="el-icon-search" @click.native="search"></el-button>
+            </el-input>
+        </div>
+        <div class="table" v-if="tableData.length>0 || listLoading">
+            <el-table v-loading="listLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading"
+                :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"  border>
+                <el-table-column prop="sku_id" label="商品编号" :show-overflow-tooltip="true">
+                </el-table-column>
+                <el-table-column prop="brand" label="品牌" :show-overflow-tooltip="true">
+                </el-table-column>
+                <el-table-column prop="phone_name" label="手机" :show-overflow-tooltip="true">
+                </el-table-column>
+                <el-table-column prop="price" label="价格" :show-overflow-tooltip="true">
+                </el-table-column>
+                <el-table-column prop="img_url" label="图片">
+                    <template scope="scope">
+                        <img :src="scope.row.img_url" width="40" height="40" />
+                    </template>
+                </el-table-column>
+                <el-table-column prop="phone_url" label="手机url" :show-overflow-tooltip="true">
+                    <template slot-scope="scope">
+                        <a :href="scope.row.phone_url" target="_blank" class="buttonText">{{scope.row.phone_url}}</a>
+                    </template>
+                </el-table-column>
+                <!-- <el-table-column prop="url" label="源地址" :show-overflow-tooltip="true">
+                    <template slot-scope="scope">
+                        <a :href="scope.row.url" target="_blank" class="buttonText">{{scope.row.url}}</a>
+                    </template>
+                </el-table-column> -->
+                <el-table-column prop="source" label="来源" :show-overflow-tooltip="true">
+                </el-table-column>
+                <el-table-column prop="dt" label="数据来源时间" :show-overflow-tooltip="true"></el-table-column>
+            </el-table>
+        </div>
+        <div class="pagination" v-if="tableData.length>0">
+            <el-pagination 
+            @current-change="handleCurrentChange"
+            :page-size="pageSize" 
+            :current-page="currentPage" 
+            layout="total, sizes, prev, pager, next, jumper" 
+            :total="totalDataNumber"
+            >
+            </el-pagination>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        var search = new Vue({
+            el: '#warp',
+            data() {
+                return {
+                    tableData: [],
+                    requestData: { // 请求数据
+                        keyword: '',
+                        skip: 0,
+                        type: 0
+                    },
+                    totalDataNumber: 0,
+                    currentPage: 1,
+                    pageSize: 10,
+                    listLoading: false
+                }
+            },
+            created: function () {
+                this.requestData.skip = (this.currentPage - 1) * this.pageSize;
+                this.totalDataNumber = this.tableData.length;
+                this.getAndDraw();
+            },
+            methods: {
+                // 请求后端数据
+                getAndDraw () {
+                    let that = this;
+                    if(!this.requestData.keyword){
+                        return false;
+                    }
+                    that.listLoading = true;
+                    axios.post('http://132.232.137.152:8000/search/', that.requestData)
+                        .then((val)=>{
+                            if(val.status === 200){
+                                if(val.data.result === 'ok'){
+                                    that.listLoading = false;
+                                    that.tableData = val.data.shopping;
+                                    for(const item of val.data.shopping){
+                                        if(item.img_url){
+                                            item.img_url = 'http:'+ item.img_url
+                                        }
+                                    }
+                                    that.totalDataNumber = val.data.shopping.length;
+                                }else {
+                                    if(val.data.result === 'failed'){
+                                        this.$message.error(val.data.message);
+                                    }
+                                }
+                            }
+                        })
+                },
+                //  搜索
+                search() {
+                    this.currentPage = 1;
+                    if (this.requestData.keyword) {
+                        if (this.requestData.keyword.indexOf('手机') !== -1) {
+                            this.requestData.type = 1;
+                        } else if (this.requestData.keyword.indexOf('笔记本') !== -1) {
+                            this.requestData.type = 2;
+                        } else {
+                            this.requestData.type = 0;
+                        }
+                    } else {
+                        return false;
+                    }
+                    this.getAndDraw();
+                },
+                // 改变页码
+                handleCurrentChange(currentPage) {
+                    this.currentPage = currentPage;
+                },
+                // 时间戳转换
+                dateFormat(row, column) {
+                    let date = new Date(parseInt(row.dt) * 1000);
+                    let Y = date.getFullYear() + '-';
+                    let M = date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) + '-' : date.getMonth() + 1 + '-';
+                    let D = date.getDate() < 10 ? '0' + date.getDate() + ' ' : date.getDate() + ' ';
+                    let h = date.getHours() < 10 ? '0' + date.getHours() + ':' : date.getHours() + ':';
+                    let m = date.getMinutes() < 10 ? '0' + date.getMinutes() + ':' : date.getMinutes() + ':';
+                    let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+                    return Y + M + D + h + m + s;
+                },
+            }
+        })
+    </script>
+</body>
+
+</html>
